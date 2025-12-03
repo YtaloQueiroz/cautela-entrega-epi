@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Cautela - Impressão</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; padding: 20px; color: #333; }
+        .container { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2563eb; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+        
+        /* Estilos para a lista dinâmica de itens */
+        .item-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .item-name { flex: 3; }
+        .item-ca { flex: 1; }
+        .btn-remove { background-color: #ef4444; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 40px; }
+        .btn-add { background-color: #3b82f6; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-add:hover { background-color: #2563eb; }
+        
+        .buttons { display: flex; margin-top: 20px; }
+        button.btn-generate { padding: 15px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; flex: 1; background-color: #10b981; color: white; }
+        button.btn-generate:hover { background-color: #059669; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📋 Gerador de Cautela</h1>
+    
+    <div class="form-group">
+        <label>Nome do Colaborador (Eletricista):</label>
+        <input type="text" id="nome" placeholder="Ex: João da Silva">
+    </div>
+
+    <div class="form-group">
+        <label>Matrícula:</label>
+        <input type="text" id="documento" placeholder="1234" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric">
+    </div>
+
+    <div class="form-group">
+        <label>Cargo do Colaborador:</label>
+        <input type="text" id="cargo" placeholder="Ex: Eletricista">
+    </div>
+
+    <div class="form-group">
+        <label>Data de Retirada:</label>
+        <input type="date" id="data">
+    </div>
+
+    <div class="form-group">
+        <label>Lista de EPIs / Materiais:</label>
+        <div id="lista-epis">
+            <!-- Itens serão adicionados aqui -->
+            <div class="item-row">
+                <input type="text" class="item-name" placeholder="Nome do EPI (Ex: Luva Isolante)">
+                <input type="text" class="item-ca" placeholder="N° CA" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric">
+                <button class="btn-remove" onclick="removeItem(this)" title="Remover item">✕</button>
+            </div>
+        </div>
+        <button class="btn-add" onclick="addItem()">+ Adicionar Outro Item</button>
+    </div>
+
+    <div class="buttons">
+        <button class="btn-generate" onclick="generatePDF()">📄 Baixar PDF para Impressão</button>
+    </div>
+</div>
+
+<script>
+    // Ajuste de Data para Hoje
+    document.getElementById('data').valueAsDate = new Date();
+
+    // Função para Adicionar Item na Lista
+    function addItem() {
+        const container = document.getElementById('lista-epis');
+        const div = document.createElement('div');
+        div.className = 'item-row';
+        div.innerHTML = `
+            <input type="text" class="item-name" placeholder="Nome do EPI">
+            <input type="text" class="item-ca" placeholder="N° CA" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric">
+            <button class="btn-remove" onclick="removeItem(this)" title="Remover item">✕</button>
+        `;
+        container.appendChild(div);
+    }
+
+    // Função para Remover Item
+    function removeItem(button) {
+        const container = document.getElementById('lista-epis');
+        // Garante que fique pelo menos 1 item
+        if (container.children.length > 1) {
+            button.parentElement.remove();
+        } else {
+            // Se for o último, apenas limpa os campos
+            button.parentElement.querySelector('.item-name').value = '';
+            button.parentElement.querySelector('.item-ca').value = '';
+        }
+    }
+
+    // Função para Gerar PDF
+    async function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        const nome = document.getElementById('nome').value || "__________________________";
+        const documento = document.getElementById('documento').value || "__________";
+        const cargo = document.getElementById('cargo').value || "____________________";
+        const data = document.getElementById('data').value.split('-').reverse().join('/');
+        
+        // Coletar itens da lista dinâmica
+        const itemRows = document.querySelectorAll('.item-row');
+        const listaItens = [];
+        itemRows.forEach(row => {
+            const nomeItem = row.querySelector('.item-name').value.trim();
+            const caItem = row.querySelector('.item-ca').value.trim();
+            if (nomeItem) {
+                listaItens.push({ nome: nomeItem, ca: caItem });
+            }
+        });
+
+        let currentY = 20;
+
+        // Cabeçalho
+        doc.setFontSize(22);
+        doc.setTextColor(40);
+        doc.text("Cautela de Entrega de EPI", 20, currentY);
+        currentY += 5;
+        
+        doc.setLineWidth(0.5);
+        doc.line(20, currentY, 190, currentY);
+        currentY += 15;
+
+        // Dados da Empresa e Colaborador
+        doc.setFontSize(12);
+        doc.setTextColor(0);
+        
+        // Nome da Empresa (Negrito)
+        doc.setFont(undefined, 'bold');
+        doc.text("Empresa: ELINSA ELETROTÉCNICA INDUSTRIAL E NAVAL DO BRASIL LTDA", 20, currentY);
+        currentY += 10;
+        doc.setFont(undefined, 'normal');
+
+        doc.text(`Colaborador: ${nome}`, 20, currentY);
+        currentY += 10;
+        doc.text(`Matrícula: ${documento}`, 20, currentY);
+        currentY += 10;
+        doc.text(`Cargo: ${cargo}`, 20, currentY);
+        currentY += 10;
+        doc.text(`Data de Retirada: ${data}`, 20, currentY);
+        currentY += 20;
+
+        // --- LISTA DE EQUIPAMENTOS E TERMOS ---
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text("EQUIPAMENTOS RECEBIDOS E CONFERIDOS", 20, currentY);
+        currentY += 10;
+
+        // Texto Jurídico
+        doc.setFontSize(8); // Fonte menor
+        doc.setFont(undefined, 'normal');
+        
+        const termosTexto = "Declaro para todos os efeitos legais, que estou ciente das obrigações que passo a assumir com relação a cada EPI, constante na Norma Regulamentadora NR – 6 da portaria 3214/78, inscrita no subitem 6.7.1, a saber:\n" +
+        "• Usar o EPI apenas para a finalidade a que se destina;\n" +
+        "• Responsabilizar-me pela guarda e conservação do EPI;\n" +
+        "• Comunicar ao Departamento de Segurança da empresa qualquer alteração que torne o EPI impróprio para o uso;\n" +
+        "• Que me encontro ciente e coloco minha anuência às disposições do Art. 462, parágrafo 1º da Consolidação das Leis do Trabalho, autorizando o desconto salarial proporcional ao custo da reparação do dano que eventualmente, vier a provocar em qualquer EPI, já que atesto tê-lo recebido em perfeitas condições;\n" +
+        "• Que estou ciente também da disposição legal constante na NR – 1, especificamente do subitem 1.8.1, de que constitui ato faltoso a recusa injustificada de usar o EPI fornecido pela Empresa, incorrendo nas penalidades previstas na Lei;\n" +
+        "• Que devo devolver todo o EPI em meu poder, no ato do meu desligamento da Empresa.\n\n" +
+        "Obs.: Item “h” do Ato de Indisciplina e/ou insubordinação – Art. 482 do Decreto-Lei nº 5452 de 01/03/43 – CLT: Advertência Verbal, Advertência por Escrito, Suspensão, Demissão por Justa Causa.\n\n" +
+        "Declaro haver recebido da ELINSA ELETROTÉCNICA INDUSTRIAL E NAVAL DO BRASIL LTDA, o(s) Equipamento(s) de Proteção Individual (EPI´s) abaixo relacionado(s), tendo sido orientado para sua correta utilização e quanto às precauções a tomar no sentido de evitar acidentes do trabalho ou doenças profissionais ou do trabalho.";
+
+        const splitTermos = doc.splitTextToSize(termosTexto, 170);
+        doc.text(splitTermos, 20, currentY);
+        
+        currentY += (splitTermos.length * 3.5) + 10;
+
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text("(Assine ao lado de cada item para confirmar o recebimento)", 20, currentY);
+        doc.setTextColor(0);
+        currentY += 10;
+
+        // Loop para cada item
+        listaItens.forEach((item) => {
+            // Verifica quebra de página
+            if (currentY > 270) {
+                doc.addPage();
+                currentY = 20;
+            }
+
+            // Formata o texto do item: Nome (CA: 12345)
+            const textoItem = item.ca ? `• ${item.nome} (CA: ${item.ca})` : `• ${item.nome}`;
+            doc.text(textoItem, 20, currentY);
+            
+            // Linha para assinatura
+            doc.setDrawColor(150);
+            doc.setLineDash([1, 1], 0); // Linha pontilhada
+            doc.line(130, currentY, 190, currentY);
+            doc.setLineDash([]); // Reseta linha
+            doc.setDrawColor(0);
+            
+            doc.setFontSize(8);
+            doc.text("Assinatura", 130, currentY + 4);
+            doc.setFontSize(10);
+
+            currentY += 15; // Espaço para o próximo item
+        });
+
+        currentY += 20;
+
+        // Verifica quebra de página para assinatura final
+        if (currentY > 250) {
+            doc.addPage();
+            currentY = 40;
+        }
+
+        // Espaço para Assinatura Final (Centralizado)
+        doc.line(65, currentY, 145, currentY);
+        doc.text("Assinatura do Colaborador", 105, currentY + 5, { align: "center" });
+
+        // Salvar
+        doc.save(`Cautela_${nome.replace(/\s+/g, '_')}_${data.replace(/\//g, '-')}.pdf`);
+    }
+</script>
+
+</body>
+</html>
+    
+  </body>
+  
+</html>
