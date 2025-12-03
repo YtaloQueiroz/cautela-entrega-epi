@@ -6,76 +6,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Cautela - Impressão</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; padding: 20px; color: #333; }
-        .container { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #2563eb; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
-        #logo{
-            width: 20%;
-        }
-        .topo{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        /* Estilos para a lista dinâmica de itens */
-        .item-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .item-name { flex: 3; }
-        .item-ca { flex: 1; }
-        .btn-remove { background-color: #ef4444; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 40px; }
-        .btn-add { background-color: #3b82f6; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .btn-add:hover { background-color: #2563eb; }
-        
-        .buttons { display: flex; margin-top: 20px; }
-        button.btn-generate { padding: 15px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; flex: 1; background-color: #10b981; color: white; }
-        button.btn-generate:hover { background-color: #059669; }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <div class="topo">
-            <h1>📋 Gerador de Cautela</h1>
-            <img id="logo" src="Logo.png" alt="Logo da empresa Amper Elinsa">
+<body class="bg-gray-100 p-5 font-sans text-gray-800">
+    <div class="max-w-[700px] mx-auto bg-white p-8 rounded-lg shadow-md">
+        <div class="flex flex-col items-center my-8 gap-y-4">
+            <img id="logo" src="Logo.png" alt="Logo" class="w-1/5 max-w-[100px] object-contain">
+            <h1 class="text-3xl font-bold text-blue-600 text-center flex-1">📋 Gerador de Cautela</h1>
         </div>
         
-        <div class="form-group">
-            <label>Nome do Colaborador (Eletricista):</label>
-            <input type="text" id="nome" placeholder="Ex: João da Silva">
+        <div class="mb-4">
+            <label class="block mb-1 font-bold text-gray-700">Nome do Colaborador (Eletricista):</label>
+            <input type="text" id="nome" placeholder="Ex: João da Silva" 
+                   class="w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
-        <div class="form-group">
-            <label>Matrícula:</label>
-            <input type="text" id="documento" placeholder="1234" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric">
+        <div class="mb-4">
+            <label class="block mb-1 font-bold text-gray-700">Matrícula:</label>
+            <input type="text" id="documento" placeholder="1234" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric"
+                   class="w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
-        <div class="form-group">
-            <label>Cargo do Colaborador:</label>
-            <input type="text" id="cargo" placeholder="Ex: Eletricista">
+        <div class="mb-4">
+            <label class="block mb-1 font-bold text-gray-700">Cargo do Colaborador:</label>
+            <input type="text" id="cargo" placeholder="Ex: Eletricista"
+                   class="w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
-        <div class="form-group">
-            <label>Data de Retirada:</label>
-            <input type="date" id="data">
+        <div class="mb-4">
+            <label class="block mb-1 font-bold text-gray-700">Data de Retirada:</label>
+            <input type="date" id="data"
+                   class="w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
-        <div class="form-group">
-            <label>Lista de EPIs / Materiais:</label>
-            <div id="lista-epis">
-                <!-- Itens serão adicionados aqui -->
-                <div class="item-row">
-                    <input type="text" class="item-name" placeholder="Nome do EPI (Ex: Luva Isolante)">
-                    <input type="text" class="item-ca" placeholder="N° CA" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric">
-                    <button class="btn-remove" onclick="removeItem(this)" title="Remover item">✕</button>
+        <div class="mb-4">
+            <label class="block mb-2 font-bold text-gray-700">Lista de EPIs / Materiais:</label>
+            <div id="lista-epis" class="space-y-2 mb-4">
+                <div class="flex gap-2 items-center item-row">
+                    <input type="text" class="item-name flex-[3] w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nome do EPI (Ex: Luva Isolante)">
+                    <input type="text" class="item-ca flex-1 w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="N° CA" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric">
+                    <button class="bg-red-500 hover:bg-red-600 text-white font-bold p-2 rounded-md w-10 transition-colors" onclick="removeItem(this)" title="Remover item">✕</button>
                 </div>
             </div>
-            <button class="btn-add" onclick="addItem()">+ Adicionar Outro Item</button>
+            
+            <button class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors flex items-center justify-center gap-2" onclick="addItem()">
+                + Adicionar Outro Item
+            </button>
         </div>
 
-        <div class="buttons">
-            <button class="btn-generate" onclick="generatePDF()">📄 Baixar PDF para Impressão</button>
+        <div class="mt-8 flex">
+            <button class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-6 rounded-md text-lg transition-colors shadow-md" onclick="generatePDF()">
+                📄 Baixar PDF para Impressão
+            </button>
         </div>
     </div>
 
@@ -83,15 +65,16 @@
         // Ajuste de Data para Hoje
         document.getElementById('data').valueAsDate = new Date();
 
-        // Função para Adicionar Item na Lista
+        // Função para Adicionar Item na Lista (Atualizada com classes Tailwind)
         function addItem() {
             const container = document.getElementById('lista-epis');
             const div = document.createElement('div');
-            div.className = 'item-row';
+            // Classes do container da linha
+            div.className = 'flex gap-2 items-center item-row';
             div.innerHTML = `
-                <input type="text" class="item-name" placeholder="Nome do EPI">
-                <input type="text" class="item-ca" placeholder="N° CA" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric">
-                <button class="btn-remove" onclick="removeItem(this)" title="Remover item">✕</button>
+                <input type="text" class="item-name flex-[3] w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nome do EPI">
+                <input type="text" class="item-ca flex-1 w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="N° CA" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric">
+                <button class="bg-red-500 hover:bg-red-600 text-white font-bold p-2 rounded-md w-10 transition-colors" onclick="removeItem(this)" title="Remover item">✕</button>
             `;
             container.appendChild(div);
         }
@@ -115,11 +98,10 @@
             canvas.height = imgElement.naturalHeight;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(imgElement, 0, 0);
-            // Retorna a string Base64. Use 'image/jpeg' ou 'image/png' conforme o tipo.
             return canvas.toDataURL('image/png'); 
         }   
 
-        // Função para Gerar PDF
+        // Função para Gerar PDF (Lógica Mantida)
         async function generatePDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -129,7 +111,14 @@
             const cargo = document.getElementById('cargo').value || "____________________";
             const data = document.getElementById('data').value.split('-').reverse().join('/');
             const imgElement = document.getElementById('logo')
-            const imgData = getBase64Image(imgElement)
+            
+            // Tratamento de erro caso a imagem não carregue no HTML
+            let imgData = null;
+            try {
+                imgData = getBase64Image(imgElement);
+            } catch (e) {
+                console.warn("Logo não carregada ou erro ao converter para Base64");
+            }
 
             // Coletar itens da lista dinâmica
             const itemRows = document.querySelectorAll('.item-row');
@@ -144,12 +133,15 @@
 
             let currentY = 20;
 
-            // Cabeçalho
+            // Cabeçalho PDF
             doc.setFontSize(18); 
             doc.setTextColor(40);
             doc.text("Cautela de Entrega de EPI", 20, currentY);
             currentY += 5;
-            doc.addImage(imgData, "PNG", 165, 8, 25, 15)
+            
+            if(imgData) {
+                doc.addImage(imgData, "PNG", 165, 8, 25, 15);
+            }
             
             doc.setLineWidth(0.5);
             doc.line(20, currentY, 190, currentY);
@@ -207,7 +199,6 @@
 
             // Loop para cada item
             listaItens.forEach((item) => {
-                // Verifica quebra de página
                 if (currentY > 270) {
                     doc.addPage();
                     currentY = 20;
@@ -231,25 +222,19 @@
                 currentY += 10;
             });
 
-            // Aumentando o espaçamento para afastar mais a assinatura final
-            // Antes era 35, agora 55 para dar um "ar" bem maior antes do fim da página
             currentY += 55;
 
-            // Verifica quebra de página para assinatura final
-            // Se estiver muito próximo do fim (297mm é a altura total), pula página
             if (currentY > 275) {
                 doc.addPage();
                 currentY = 40;
             }
 
-            // Espaço para Assinatura Final (Centralizado)
+            // Espaço para Assinatura Final
             doc.line(65, currentY, 145, currentY);
             doc.text("Assinatura do Colaborador", 105, currentY + 5, { align: "center" });
 
-            // Salvar
             doc.save(`Cautela_${nome.replace(/\s+/g, '_')}_${data.replace(/\//g, '-')}.pdf`);
         }
     </script>
-
 </body>
 </html>
