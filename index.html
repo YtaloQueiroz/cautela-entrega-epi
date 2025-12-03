@@ -1,240 +1,408 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="LOGO A.png" type="image/x-icon">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Cautela - Impressão</title>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="LOGO A.png" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerador de Cautela</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 p-5 font-sans text-gray-800">
-    <div class="max-w-[700px] mx-auto bg-white p-8 rounded-lg shadow-md">
-        <div class="flex flex-col items-center my-8 gap-y-4">
-            <img id="logo" src="Logo.png" alt="Logo" class="w-1/5 max-w-[100px] object-contain">
-            <h1 class="text-3xl font-bold text-blue-600 text-center flex-1">📋 Gerador de Cautela</h1>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-50 min-h-screen flex items-center justify-center p-4 text-slate-900 antialiased"
+  >
+    <div
+      class="w-full max-w-[700px] bg-white border border-gray-200 rounded-xl shadow-sm"
+    >
+      <div class="flex flex-col items-center pt-8 pb-2 px-8 gap-y-4">
+        <img
+          id="logo"
+          src="Logo.png"
+          alt="Logo"
+          class="h-16 object-contain mb-2"
+        />
+        <div class="text-center">
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+            Gerador de Cautela
+          </h1>
+          <p class="text-sm text-slate-500 mt-1">
+            Preencha os dados abaixo para gerar o documento.
+          </p>
         </div>
-        
-        <div class="mb-4">
-            <label class="block mb-1 font-bold text-gray-700">Nome do Colaborador (Eletricista):</label>
-            <input type="text" id="nome" placeholder="Ex: João da Silva" 
-                   class="w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
+      </div>
 
-        <div class="mb-4">
-            <label class="block mb-1 font-bold text-gray-700">Matrícula:</label>
-            <input type="text" id="documento" placeholder="1234" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric"
-                   class="w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-
-        <div class="mb-4">
-            <label class="block mb-1 font-bold text-gray-700">Cargo do Colaborador:</label>
-            <input type="text" id="cargo" placeholder="Ex: Eletricista"
-                   class="w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-
-        <div class="mb-4">
-            <label class="block mb-1 font-bold text-gray-700">Data de Retirada:</label>
-            <input type="date" id="data"
-                   class="w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-
-        <div class="mb-4">
-            <label class="block mb-2 font-bold text-gray-700">Lista de EPIs / Materiais:</label>
-            <div id="lista-epis" class="space-y-2 mb-4">
-                <div class="flex gap-2 items-center item-row">
-                    <input type="text" class="item-name flex-[3] w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nome do EPI (Ex: Luva Isolante)">
-                    <input type="text" class="item-ca flex-1 w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="N° CA" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric">
-                    <button class="bg-red-500 hover:bg-red-600 text-white font-bold p-2 rounded-md w-10 transition-colors" onclick="removeItem(this)" title="Remover item">✕</button>
-                </div>
+      <div class="p-8 pt-4">
+        <form id="cautelaForm" onsubmit="generatePDF(event)" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label
+                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >Nome do colaborador</label
+              >
+              <input
+                type="text"
+                id="nome"
+                placeholder="João da Silva"
+                required
+                class="flex h-10 w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+              />
             </div>
-            
-            <button class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors flex items-center justify-center gap-2" onclick="addItem()">
-                + Adicionar Outro Item
-            </button>
-        </div>
 
-        <div class="mt-8 flex">
-            <button class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-6 rounded-md text-lg transition-colors shadow-md" onclick="generatePDF()">
-                📄 Baixar PDF para Impressão
+            <div class="space-y-2">
+              <label
+                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >Matrícula</label
+              >
+              <input
+                type="text"
+                id="documento"
+                placeholder="0000"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                inputmode="numeric"
+                required
+                class="flex h-10 w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 transition-all"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label
+                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >Cargo</label
+              >
+              <input
+                type="text"
+                id="cargo"
+                placeholder="Eletricista"
+                required
+                class="flex h-10 w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 transition-all"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label
+                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >Data de Retirada</label
+              >
+              <input
+                type="date"
+                id="data"
+                required
+                class="flex h-10 w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 transition-all"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex flex-col items-start">
+              <label class="text-sm font-medium leading-none"
+                >Lista de EPIs / Materiais</label
+              >
+              <span class="text-xs text-slate-500"
+                >Adicione os itens e seus CAs</span
+              >
+            </div>
+
+            <div id="lista-epis" class="space-y-3">
+              <div
+                class="flex flex-wrap gap-3 items-center item-row animate-in fade-in slide-in-from-top-1 duration-300"
+              >
+                <input
+                  type="text"
+                  class="item-name flex-1 h-10 rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2"
+                  placeholder="Nome do EPI (Ex: Luva Isolante)"
+                  required
+                />
+                <input
+                  type="text"
+                  class="item-ca w-24 h-10 rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2"
+                  placeholder="CA"
+                  oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                  inputmode="numeric"
+                />
+
+                <button
+                  type="button"
+                  class="group h-10 w-10 flex items-center justify-center rounded-md border border-gray-200 bg-white hover:bg-red-50 hover:border-red-200 text-slate-500 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2"
+                  onclick="removeItem(this)"
+                  title="Remover item"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M3 6h18" />
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="inline-flex h-10 w-full items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-slate-900 shadow-sm hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 transition-colors"
+              onclick="addItem()"
+            >
+              <svg
+                class="mr-2 h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="12" x2="12" y1="5" y2="19" />
+                <line x1="5" x2="19" y1="12" y2="12" />
+              </svg>
+              Adicionar item
             </button>
-        </div>
+          </div>
+
+          <button
+            type="submit"
+            class="inline-flex h-10 w-full items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow hover:bg-slate-900/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 transition-colors"
+          >
+            <svg
+              class="mr-2 h-4 w-4"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" x2="12" y1="15" y2="3" />
+            </svg>
+            Baixar PDF para Impressão
+          </button>
+        </form>
+      </div>
     </div>
 
     <script>
-        // Ajuste de Data para Hoje
-        document.getElementById('data').valueAsDate = new Date();
+      // Ajuste de Data para Hoje
+      document.getElementById("data").valueAsDate = new Date();
 
-        // Função para Adicionar Item na Lista (Atualizada com classes Tailwind)
-        function addItem() {
-            const container = document.getElementById('lista-epis');
-            const div = document.createElement('div');
-            // Classes do container da linha
-            div.className = 'flex gap-2 items-center item-row';
-            div.innerHTML = `
-                <input type="text" class="item-name flex-[3] w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nome do EPI">
-                <input type="text" class="item-ca flex-1 w-full p-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="N° CA" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric">
-                <button class="bg-red-500 hover:bg-red-600 text-white font-bold p-2 rounded-md w-10 transition-colors" onclick="removeItem(this)" title="Remover item">✕</button>
+      // Função para Adicionar Item na Lista
+      // ATUALIZADA: Agora insere os inputs com as mesmas classes "shadcn" do HTML principal
+      function addItem() {
+        const container = document.getElementById("lista-epis");
+        const div = document.createElement("div");
+
+        // Adiciona classes de animação e layout
+        div.className =
+          "flex gap-3 items-center item-row animate-in fade-in slide-in-from-top-1 duration-300";
+
+        div.innerHTML = `
+                <div class="flex flex-wrap gap-3 items-center item-row animate-in fade-in slide-in-from-top-1 duration-300">
+                            <input type="text" class="item-name flex-1 h-10 rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2" placeholder="Nome do EPI (Ex: Luva Isolante)" required>
+                            <input type="text" class="item-ca w-24 h-10 rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2" placeholder="CA" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric">
+                            
+                            <button type="button" class="group h-10 w-10 flex items-center justify-center rounded-md border border-gray-200 bg-white hover:bg-red-50 hover:border-red-200 text-slate-500 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2" onclick="removeItem(this)" title="Remover item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                            </button>
+                        </div>
             `;
-            container.appendChild(div);
+        container.appendChild(div);
+      }
+
+      // Função para Remover Item
+      function removeItem(button) {
+        const container = document.getElementById("lista-epis");
+        if (container.children.length > 1) {
+          // Remove com um pequeno delay visual se quiser (opcional), aqui remove direto
+          button.parentElement.remove();
+        } else {
+          button.parentElement.querySelector(".item-name").value = "";
+          button.parentElement.querySelector(".item-ca").value = "";
+        }
+      }
+
+      function getBase64Image(imgElement) {
+        const canvas = document.createElement("canvas");
+        canvas.width = imgElement.naturalWidth;
+        canvas.height = imgElement.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(imgElement, 0, 0);
+        return canvas.toDataURL("image/png");
+      }
+
+      // Função para Gerar PDF
+      async function generatePDF(event) {
+        event.preventDefault();
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const nome =
+          document.getElementById("nome").value || "__________________________";
+        const documento =
+          document.getElementById("documento").value || "__________";
+        const cargo =
+          document.getElementById("cargo").value || "____________________";
+        const data = document
+          .getElementById("data")
+          .value.split("-")
+          .reverse()
+          .join("/");
+        const imgElement = document.getElementById("logo");
+
+        let imgData = null;
+        try {
+          imgData = getBase64Image(imgElement);
+        } catch (e) {
+          console.warn("Logo não carregada");
         }
 
-        // Função para Remover Item
-        function removeItem(button) {
-            const container = document.getElementById('lista-epis');
-            // Garante que fique pelo menos 1 item
-            if (container.children.length > 1) {
-                button.parentElement.remove();
-            } else {
-                // Se for o último, apenas limpa os campos
-                button.parentElement.querySelector('.item-name').value = '';
-                button.parentElement.querySelector('.item-ca').value = '';
-            }
+        const itemRows = document.querySelectorAll(".item-row");
+        const listaItens = [];
+        itemRows.forEach((row) => {
+          const nomeItem = row.querySelector(".item-name").value.trim();
+          const caItem = row.querySelector(".item-ca").value.trim();
+          if (nomeItem) {
+            listaItens.push({ nome: nomeItem, ca: caItem });
+          }
+        });
+
+        let currentY = 20;
+
+        // Cabeçalho PDF
+        doc.setFontSize(18);
+        doc.setTextColor(40);
+        doc.text("Cautela de Entrega de EPI", 20, currentY);
+        currentY += 5;
+
+        if (imgData) {
+          doc.addImage(imgData, "PNG", 165, 8, 25, 15);
         }
 
-        function getBase64Image(imgElement) {
-            const canvas = document.createElement('canvas');
-            canvas.width = imgElement.naturalWidth;
-            canvas.height = imgElement.naturalHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(imgElement, 0, 0);
-            return canvas.toDataURL('image/png'); 
-        }   
+        doc.setLineWidth(0.5);
+        doc.line(20, currentY, 190, currentY);
+        currentY += 10;
 
-        // Função para Gerar PDF (Lógica Mantida)
-        async function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            const nome = document.getElementById('nome').value || "__________________________";
-            const documento = document.getElementById('documento').value || "__________";
-            const cargo = document.getElementById('cargo').value || "____________________";
-            const data = document.getElementById('data').value.split('-').reverse().join('/');
-            const imgElement = document.getElementById('logo')
-            
-            // Tratamento de erro caso a imagem não carregue no HTML
-            let imgData = null;
-            try {
-                imgData = getBase64Image(imgElement);
-            } catch (e) {
-                console.warn("Logo não carregada ou erro ao converter para Base64");
-            }
+        doc.setFontSize(10);
+        doc.setTextColor(0);
 
-            // Coletar itens da lista dinâmica
-            const itemRows = document.querySelectorAll('.item-row');
-            const listaItens = [];
-            itemRows.forEach(row => {
-                const nomeItem = row.querySelector('.item-name').value.trim();
-                const caItem = row.querySelector('.item-ca').value.trim();
-                if (nomeItem) {
-                    listaItens.push({ nome: nomeItem, ca: caItem });
-                }
-            });
+        doc.setFont(undefined, "bold");
+        doc.text(
+          "Empresa: ELINSA ELETROTÉCNICA INDUSTRIAL E NAVAL DO BRASIL LTDA",
+          20,
+          currentY
+        );
+        currentY += 7;
+        doc.setFont(undefined, "normal");
 
-            let currentY = 20;
+        doc.text(`Colaborador: ${nome}`, 20, currentY);
+        currentY += 7;
+        doc.text(`Matrícula: ${documento}`, 20, currentY);
+        currentY += 7;
+        doc.text(`Cargo: ${cargo}`, 20, currentY);
+        currentY += 7;
+        doc.text(`Data de Retirada: ${data}`, 20, currentY);
+        currentY += 12;
 
-            // Cabeçalho PDF
-            doc.setFontSize(18); 
-            doc.setTextColor(40);
-            doc.text("Cautela de Entrega de EPI", 20, currentY);
-            currentY += 5;
-            
-            if(imgData) {
-                doc.addImage(imgData, "PNG", 165, 8, 25, 15);
-            }
-            
-            doc.setLineWidth(0.5);
-            doc.line(20, currentY, 190, currentY);
-            currentY += 10;
+        doc.setFontSize(11);
+        doc.setFont(undefined, "bold");
+        doc.text("EQUIPAMENTOS RECEBIDOS E CONFERIDOS", 20, currentY);
+        currentY += 8;
 
-            // Dados da Empresa e Colaborador
-            doc.setFontSize(10);
-            doc.setTextColor(0);
-            
-            // Nome da Empresa (Negrito)
-            doc.setFont(undefined, 'bold');
-            doc.text("Empresa: ELINSA ELETROTÉCNICA INDUSTRIAL E NAVAL DO BRASIL LTDA", 20, currentY);
-            currentY += 7;
-            doc.setFont(undefined, 'normal');
+        doc.setFontSize(7);
+        doc.setFont(undefined, "normal");
 
-            doc.text(`Colaborador: ${nome}`, 20, currentY);
-            currentY += 7;
-            doc.text(`Matrícula: ${documento}`, 20, currentY);
-            currentY += 7;
-            doc.text(`Cargo: ${cargo}`, 20, currentY);
-            currentY += 7;
-            doc.text(`Data de Retirada: ${data}`, 20, currentY);
-            currentY += 12;
+        const termosTexto =
+          "Declaro para todos os efeitos legais, que estou ciente das obrigações que passo a assumir com relação a cada EPI, constante na Norma Regulamentadora NR – 6 da portaria 3214/78, inscrita no subitem 6.7.1, a saber:\n" +
+          "• Usar o EPI apenas para a finalidade a que se destina;\n" +
+          "• Responsabilizar-me pela guarda e conservação do EPI;\n" +
+          "• Comunicar ao Departamento de Segurança da empresa qualquer alteração que torne o EPI impróprio para o uso;\n" +
+          "• Que me encontro ciente e coloco minha anuência às disposições do Art. 462, parágrafo 1º da Consolidação das Leis do Trabalho, autorizando o desconto salarial proporcional ao custo da reparação do dano que eventualmente, vier a provocar em qualquer EPI, já que atesto tê-lo recebido em perfeitas condições;\n" +
+          "• Que estou ciente também da disposição legal constante na NR – 1, especificamente do subitem 1.8.1, de que constitui ato faltoso a recusa injustificada de usar o EPI fornecido pela Empresa, incorrendo nas penalidades previstas na Lei;\n" +
+          "• Que devo devolver todo o EPI em meu poder, no ato do meu desligamento da Empresa.\n\n" +
+          "Obs.: Item “h” do Ato de Indisciplina e/ou insubordinação – Art. 482 do Decreto-Lei nº 5452 de 01/03/43 – CLT: Advertência Verbal, Advertência por Escrito, Suspensão, Demissão por Justa Causa.\n\n" +
+          "Declaro haver recebido da ELINSA ELETROTÉCNICA INDUSTRIAL E NAVAL DO BRASIL LTDA, o(s) Equipamento(s) de Proteção Individual (EPI´s) abaixo relacionado(s), tendo sido orientado para sua correta utilização e quanto às precauções a tomar no sentido de evitar acidentes do trabalho ou doenças profissionais ou do trabalho.";
 
-            // --- LISTA DE EQUIPAMENTOS E TERMOS ---
-            doc.setFontSize(11);
-            doc.setFont(undefined, 'bold');
-            doc.text("EQUIPAMENTOS RECEBIDOS E CONFERIDOS", 20, currentY);
-            currentY += 8;
+        const splitTermos = doc.splitTextToSize(termosTexto, 170);
+        doc.text(splitTermos, 20, currentY);
 
-            // Texto Jurídico
-            doc.setFontSize(7);
-            doc.setFont(undefined, 'normal');
-            
-            const termosTexto = "Declaro para todos os efeitos legais, que estou ciente das obrigações que passo a assumir com relação a cada EPI, constante na Norma Regulamentadora NR – 6 da portaria 3214/78, inscrita no subitem 6.7.1, a saber:\n" +
-            "• Usar o EPI apenas para a finalidade a que se destina;\n" +
-            "• Responsabilizar-me pela guarda e conservação do EPI;\n" +
-            "• Comunicar ao Departamento de Segurança da empresa qualquer alteração que torne o EPI impróprio para o uso;\n" +
-            "• Que me encontro ciente e coloco minha anuência às disposições do Art. 462, parágrafo 1º da Consolidação das Leis do Trabalho, autorizando o desconto salarial proporcional ao custo da reparação do dano que eventualmente, vier a provocar em qualquer EPI, já que atesto tê-lo recebido em perfeitas condições;\n" +
-            "• Que estou ciente também da disposição legal constante na NR – 1, especificamente do subitem 1.8.1, de que constitui ato faltoso a recusa injustificada de usar o EPI fornecido pela Empresa, incorrendo nas penalidades previstas na Lei;\n" +
-            "• Que devo devolver todo o EPI em meu poder, no ato do meu desligamento da Empresa.\n\n" +
-            "Obs.: Item “h” do Ato de Indisciplina e/ou insubordinação – Art. 482 do Decreto-Lei nº 5452 de 01/03/43 – CLT: Advertência Verbal, Advertência por Escrito, Suspensão, Demissão por Justa Causa.\n\n" +
-            "Declaro haver recebido da ELINSA ELETROTÉCNICA INDUSTRIAL E NAVAL DO BRASIL LTDA, o(s) Equipamento(s) de Proteção Individual (EPI´s) abaixo relacionado(s), tendo sido orientado para sua correta utilização e quanto às precauções a tomar no sentido de evitar acidentes do trabalho ou doenças profissionais ou do trabalho.";
+        currentY += splitTermos.length * 3 + 8;
 
-            const splitTermos = doc.splitTextToSize(termosTexto, 170);
-            doc.text(splitTermos, 20, currentY);
-            
-            currentY += (splitTermos.length * 3) + 8;
+        doc.setFontSize(9);
+        doc.setTextColor(100);
+        doc.text(
+          "(Assine ao lado de cada item para confirmar o recebimento)",
+          20,
+          currentY
+        );
+        doc.setTextColor(0);
+        currentY += 8;
 
-            doc.setFontSize(9); 
-            doc.setTextColor(100);
-            doc.text("(Assine ao lado de cada item para confirmar o recebimento)", 20, currentY);
-            doc.setTextColor(0);
-            currentY += 8;
+        listaItens.forEach((item) => {
+          if (currentY > 270) {
+            doc.addPage();
+            currentY = 20;
+          }
 
-            // Loop para cada item
-            listaItens.forEach((item) => {
-                if (currentY > 270) {
-                    doc.addPage();
-                    currentY = 20;
-                }
+          doc.setFontSize(10);
+          const textoItem = item.ca
+            ? `• ${item.nome} (CA: ${item.ca})`
+            : `• ${item.nome}`;
+          doc.text(textoItem, 20, currentY);
 
-                doc.setFontSize(10);
-                const textoItem = item.ca ? `• ${item.nome} (CA: ${item.ca})` : `• ${item.nome}`;
-                doc.text(textoItem, 20, currentY);
-                
-                // Linha para assinatura
-                doc.setDrawColor(150);
-                doc.setLineDash([1, 1], 0);
-                doc.line(130, currentY, 190, currentY);
-                doc.setLineDash([]);
-                doc.setDrawColor(0);
-                
-                doc.setFontSize(7);
-                doc.text("Assinatura", 130, currentY + 3);
-                doc.setFontSize(10);
+          doc.setDrawColor(150);
+          doc.setLineDash([1, 1], 0);
+          doc.line(130, currentY, 190, currentY);
+          doc.setLineDash([]);
+          doc.setDrawColor(0);
 
-                currentY += 10;
-            });
+          doc.setFontSize(7);
+          doc.text("Assinatura", 130, currentY + 3);
+          doc.setFontSize(10);
 
-            currentY += 55;
+          currentY += 10;
+        });
 
-            if (currentY > 275) {
-                doc.addPage();
-                currentY = 40;
-            }
+        currentY += 55;
 
-            // Espaço para Assinatura Final
-            doc.line(65, currentY, 145, currentY);
-            doc.text("Assinatura do Colaborador", 105, currentY + 5, { align: "center" });
-
-            doc.save(`Cautela_${nome.replace(/\s+/g, '_')}_${data.replace(/\//g, '-')}.pdf`);
+        if (currentY > 275) {
+          doc.addPage();
+          currentY = 40;
         }
+
+        doc.line(65, currentY, 145, currentY);
+        doc.text("Assinatura do Colaborador", 105, currentY + 5, {
+          align: "center",
+        });
+
+        doc.save(
+          `Cautela_${nome.replace(/\s+/g, "_")}_${data.replace(/\//g, "-")}.pdf`
+        );
+      }
     </script>
-</body>
+  </body>
 </html>
