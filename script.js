@@ -1,36 +1,44 @@
 // Ajuste de Data para Hoje
 document.getElementById("data").valueAsDate = new Date();
 
+// --- NOVA FUNÇÃO DE VALIDAÇÃO DO CA ---
+// Permite apenas números e as letras N, / e A (para formar N/A)
+function validateCA(input) {
+  input.value = input.value.toUpperCase().replace(/[^0-9N/A]/g, "");
+}
+
 // Função para Adicionar Item na Lista
-// ATUALIZADA: Agora insere os inputs com as mesmas classes "shadcn" do HTML principal
 function addItem() {
   const container = document.getElementById("lista-epis");
   const div = document.createElement("div");
 
-  // Adiciona classes de animação e layout
+  // AQUI ESTAVA O ERRO DA DIV FANTASMA:
+  // Removemos a div interna duplicada. Agora as classes vão direto no container criado.
   div.className =
-    "flex gap-3 items-center item-row animate-in fade-in slide-in-from-top-1 duration-300";
+    "flex flex-wrap gap-3 items-center item-row animate-in fade-in slide-in-from-top-1 duration-300";
 
+  // Note que atualizei o oninput do CA para usar a nova função validateCA(this)
   div.innerHTML = `
-                <div class="flex flex-wrap gap-3 items-center item-row animate-in fade-in slide-in-from-top-1 duration-300">
-                            <input type="text" class="item-name flex-1 h-10 rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2" placeholder="Nome do EPI (Ex: Luva Isolante)" required>
-                            <input type="text" class="item-ca w-24 h-10 rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2" placeholder="CA" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric">
-                            
-                            <button type="button" class="group h-10 w-10 flex items-center justify-center rounded-md border border-gray-200 bg-white hover:bg-red-50 hover:border-red-200 text-slate-500 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2" onclick="removeItem(this)" title="Remover item">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                            </button>
-                        </div>
-            `;
+        <input type="text" class="item-name flex-1 h-10 rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2" placeholder="Nome do EPI (Ex: Luva Isolante)" required>
+        
+        <input type="text" class="item-ca w-24 h-10 rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2" placeholder="CA" 
+        oninput="validateCA(this)">
+        
+        <button type="button" class="group h-10 w-10 flex items-center justify-center rounded-md border border-gray-200 bg-white hover:bg-red-50 hover:border-red-200 text-slate-500 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2" onclick="removeItem(this)" title="Remover item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+  `;
   container.appendChild(div);
 }
 
 // Função para Remover Item
 function removeItem(button) {
   const container = document.getElementById("lista-epis");
+  // Agora button.parentElement é a div principal da linha, então o remove() apaga tudo corretamente
   if (container.children.length > 1) {
-    // Remove com um pequeno delay visual se quiser (opcional), aqui remove direto
     button.parentElement.remove();
   } else {
+    // Se for o último item, apenas limpa os campos
     button.parentElement.querySelector(".item-name").value = "";
     button.parentElement.querySelector(".item-ca").value = "";
   }
